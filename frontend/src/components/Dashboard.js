@@ -46,7 +46,13 @@ export default function Dashboard() {
 
       <div className="db-header">
         <button className="db-logout" onClick={logout}>↪ Logout</button>
-        <div className="db-header-title">🎓 BTech College Workflow</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "14px" }}>
+          <img src="/logo.jpg" alt="SATI Logo" style={{ width: "64px", height: "64px", borderRadius: "8px", objectFit: "contain", background: "white", padding: "4px" }} />
+          <div>
+            <div className="db-header-title">🎓 Smart Approval Workflow Management System</div>
+            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", textAlign: "center" }}>Samrat Ashok Technological Institute, Vidisha M.P.</div>
+          </div>
+        </div>
         <p className="db-header-sub">✨ Streamlined Request Management for Academic Excellence ✨</p>
       </div>
 
@@ -55,7 +61,7 @@ export default function Dashboard() {
         {/* Welcome */}
         <div className="db-welcome-card">
           <div className="db-welcome-left">
-            <h2>🎉 Welcome, Prof. {user.name || user.username}!</h2>
+            <h2>🎉 Welcome, Prof. {user.name || user.username}</h2>
             <div className="db-welcome-meta">
               <span>🏫 {user.department}</span>
               <span>👤 {user.username}</span>
@@ -117,7 +123,13 @@ export default function Dashboard() {
 
       <div className="db-header">
         <button className="db-logout" onClick={logout}>↪ Logout</button>
-        <div className="db-header-title">🎓 BTech College Workflow</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "14px" }}>
+          <img src="/logo.jpg" alt="SATI Logo" style={{ width: "64px", height: "64px", borderRadius: "8px", objectFit: "contain", background: "white", padding: "4px" }} />
+          <div>
+            <div className="db-header-title">🎓 Smart Approval Workflow Management System</div>
+            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", textAlign: "center" }}>Samrat Ashok Technological Institute, Vidisha M.P.</div>
+          </div>
+        </div>
         <p className="db-header-sub">✨ Streamlined Request Management for Academic Excellence ✨</p>
       </div>
 
@@ -125,7 +137,7 @@ export default function Dashboard() {
 
         <div className="db-welcome-card">
           <div className="db-welcome-left">
-            <h2>🎉 Welcome, {user.name || user.username}!</h2>
+            <h2>🎉 Welcome, {user.name || user.username}</h2>
             <div className="db-welcome-meta">
               <span>🏫 All Departments</span>
               <span>👤 {user.username}</span>
@@ -175,7 +187,13 @@ export default function Dashboard() {
 
       <div className="db-header">
         <button className="db-logout" onClick={logout}>↪ Logout</button>
-        <div className="db-header-title">🎓 BTech College Workflow</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "14px" }}>
+          <img src="/logo.jpg" alt="SATI Logo" style={{ width: "64px", height: "64px", borderRadius: "8px", objectFit: "contain", background: "white", padding: "4px" }} />
+          <div>
+            <div className="db-header-title">🎓 Smart Approval Workflow Management System</div>
+            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", textAlign: "center" }}>Samrat Ashok Technological Institute, Vidisha M.P.</div>
+          </div>
+        </div>
         <p className="db-header-sub">✨ Streamlined Request Management for Academic Excellence ✨</p>
       </div>
 
@@ -183,7 +201,7 @@ export default function Dashboard() {
 
         <div className="db-welcome-card">
           <div className="db-welcome-left">
-            <h2>🎉 Welcome, {user ? (user.name || user.username) : "..."}!</h2>
+            <h2>🎉 Welcome, {user ? (user.name || user.username) : "..."}</h2>
             <div className="db-welcome-meta">
               {user && <span>🏫 {user.department}</span>}
               {user && <span>👤 {user.username}</span>}
@@ -234,3 +252,6 @@ export default function Dashboard() {
     </div>
   )
 }
+
+
+

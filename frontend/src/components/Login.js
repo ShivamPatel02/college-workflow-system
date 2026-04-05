@@ -53,8 +53,10 @@ export default function Login() {
       <div className="card">
 
         <div style={{ textAlign: "center", marginBottom: "28px" }}>
-          <div style={{ fontSize: "44px", marginBottom: "10px" }}>🎓</div>
-          <h2 style={{ margin: 0, fontSize: "24px", fontWeight: 800 }}>BTech College Workflow</h2>
+          <img src="/logo.jpg" alt="SATI Logo" style={{ width: "110px", height: "110px", borderRadius: "12px", objectFit: "contain", marginBottom: "10px", background: "white", padding: "6px" }} />
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", fontWeight: 600, letterSpacing: "0.5px" }}>Samrat Ashok Technological Institute</div>
+          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", marginBottom: "8px" }}>Vidisha, M.P.</div>
+          <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 800 }}>Smart Approval Workflow Management System</h2>
           <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginTop: "6px" }}>Sign in to your account</p>
         </div>
 
@@ -93,7 +95,7 @@ export default function Login() {
         {/* Demo Users Panel */}
         <div className="demo-panel">
           <p className="demo-title">Demo Users (Password: 123)</p>
-          <p><span className="demo-label">Students:</span> <span className="demo-users">student_cse, student_ece</span></p>
+          <p><span className="demo-label">Students:</span> <span className="demo-users">0108CS231001, 0108EC231001, 0108ME231001</span></p>
           <p><span className="demo-label">Coordinators:</span> <span className="demo-users">coordinator_cse, coordinator_ece</span></p>
           <p><span className="demo-label">HODs:</span> <span className="demo-users">hod_cse, hod_ece</span></p>
           <p><span className="demo-label">Director:</span> <span className="demo-users">director</span></p>
@@ -105,3 +107,4 @@ export default function Login() {
   )
 
 }
+
