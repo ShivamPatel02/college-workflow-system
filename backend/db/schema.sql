@@ -8,11 +8,6 @@ CREATE DATABASE IF NOT EXISTS college_workflow
 USE college_workflow;
 
 -- ─────────────────────────────────────────────
--- Migration: add name column if upgrading from older schema
--- ─────────────────────────────────────────────
--- ALTER TABLE users ADD COLUMN name VARCHAR(100) AFTER username;
-
--- ─────────────────────────────────────────────
 -- Users
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
@@ -58,37 +53,36 @@ CREATE TABLE IF NOT EXISTS approval_history (
 );
 
 -- ─────────────────────────────────────────────
--- Seed Data
 -- All passwords are bcrypt hash of "123"
 -- ─────────────────────────────────────────────
 
--- One student per department
-INSERT INTO users (username, password, role, department) VALUES
-  ('student_cse',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'CSE'),
-  ('student_ece',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'ECE'),
-  ('student_mech',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'MECH'),
-  ('student_civil', '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'CIVIL'),
-  ('student_eee',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'EEE'),
-  ('student_it',    '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'IT');
+-- Students  — enrollment number as username
+INSERT INTO users (username, name, password, role, department) VALUES
+  ('0108CS231001', 'Shivam Patel',        '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'CSE'),
+  ('0108EC231001', 'Vedant Soni',         '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'ECE'),
+  ('0108ME231001', 'Shailender Rajoliya', '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'MECH'),
+  ('0108CE231001', 'Prajjwal Mandloi',    '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'CIVIL'),
+  ('0108EE231001', 'Pranav Mahajan',      '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'EEE'),
+  ('0108IT231001', 'Toshima Rahangdale',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'STUDENT', 'IT');
 
--- One coordinator per department
-INSERT INTO users (username, password, role, department) VALUES
-  ('coordinator_cse',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'CSE'),
-  ('coordinator_ece',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'ECE'),
-  ('coordinator_mech',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'MECH'),
-  ('coordinator_civil', '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'CIVIL'),
-  ('coordinator_eee',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'EEE'),
-  ('coordinator_it',    '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'IT');
+-- Coordinators 
+INSERT INTO users (username, name, password, role, department) VALUES
+  ('coordinator_cse',   'Dr. Divya Rishi Sahu',     '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'CSE'),
+  ('coordinator_ece',   'Asst. Prof. Satish Pawar', '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'ECE'),
+  ('coordinator_mech',  'Asst. Prof. Ruchi Thakur', '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'MECH'),
+  ('coordinator_civil', 'Asst. Prof. Garima Jain',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'CIVIL'),
+  ('coordinator_eee',   'Asst. Prof. Nupur Modh',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'EEE'),
+  ('coordinator_it',    'Asst. Prof. Mukesh Azad',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'IT');
 
--- One HOD per department
-INSERT INTO users (username, password, role, department) VALUES
-  ('hod_cse',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'CSE'),
-  ('hod_ece',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'ECE'),
-  ('hod_mech',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'MECH'),
-  ('hod_civil', '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'CIVIL'),
-  ('hod_eee',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'EEE'),
-  ('hod_it',    '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'IT');
+-- HODs 
+INSERT INTO users (username, name, password, role, department) VALUES
+  ('hod_cse',   'Dr. Kanak Saxena',                 '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'CSE'),
+  ('hod_ece',   'Dr. Ashutosh Datar',                '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'ECE'),
+  ('hod_mech',  'Dr. Pankaj Agarwal',                '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'MECH'),
+  ('hod_civil', 'Dr. Rajeev Jain',                   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'CIVIL'),
+  ('hod_eee',   'Prof. C. S. Sharma',                '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'EEE'),
+  ('hod_it',    'Dr. Shailendra Kumar Shrivastava',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'IT');
 
--- One Director (cross-department)
-INSERT INTO users (username, password, role, department) VALUES
-  ('director', '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'DIRECTOR', 'CSE');
+-- Director
+INSERT INTO users (username, name, password, role, department) VALUES
+  ('director', 'Dr. Y. K. Jain', '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'DIRECTOR', 'CSE');

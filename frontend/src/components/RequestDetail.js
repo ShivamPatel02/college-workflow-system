@@ -19,6 +19,37 @@ const WORKFLOW_MAP = {
   OTHER:            ['COORDINATOR', 'HOD', 'DIRECTOR'],
 }
 
+const COORDINATOR_WORKFLOW_MAP = {
+  LEAVE:            ['HOD'],
+  LAB_ACCESS:       ['HOD'],
+  EQUIPMENT:        ['HOD', 'DIRECTOR'],
+  COURSE_CHANGE:    ['HOD', 'DIRECTOR'],
+  CERTIFICATE:      ['HOD', 'DIRECTOR'],
+  RESEARCH:         ['HOD', 'DIRECTOR'],
+  INDUSTRIAL_VISIT: ['HOD', 'DIRECTOR'],
+  PROJECT:          ['HOD', 'DIRECTOR'],
+  OTHER:            ['HOD', 'DIRECTOR'],
+}
+
+const HOD_WORKFLOW_MAP = {
+  LEAVE:            ['DIRECTOR'],
+  LAB_ACCESS:       ['DIRECTOR'],
+  EQUIPMENT:        ['DIRECTOR'],
+  COURSE_CHANGE:    ['DIRECTOR'],
+  CERTIFICATE:      ['DIRECTOR'],
+  RESEARCH:         ['DIRECTOR'],
+  INDUSTRIAL_VISIT: ['DIRECTOR'],
+  PROJECT:          ['DIRECTOR'],
+  OTHER:            ['DIRECTOR'],
+}
+
+// Pick the right map based on who submitted the request
+function getChain(request) {
+  if (request.created_by_role === 'COORDINATOR') return COORDINATOR_WORKFLOW_MAP[request.type] || []
+  if (request.created_by_role === 'HOD')         return HOD_WORKFLOW_MAP[request.type] || []
+  return WORKFLOW_MAP[request.type] || []
+}
+
 const TYPE_LABELS = {
   LEAVE:            "Leave Request",
   LAB_ACCESS:       "Lab Access Request",
@@ -121,6 +152,8 @@ export default function RequestDetail() {
     if (!user || !request) return false
     if (!["COORDINATOR","HOD","DIRECTOR"].includes(user.role)) return false
     if (!["PENDING","ESCALATED"].includes(request.status)) return false
+    // Cannot approve your own request
+    if (request.created_by === user.id) return false
     return request.current_role === user.role
   }
 
@@ -194,12 +227,12 @@ export default function RequestDetail() {
             </div>
             <div className="rd-info-row">
               <span>Final Approver</span>
-              <span><strong>{(WORKFLOW_MAP[request.type] || []).slice(-1)[0] || "—"}</strong></span>
+              <span><strong>{getChain(request).slice(-1)[0] || "—"}</strong></span>
             </div>
             <div className="rd-info-row">
               <span>Workflow</span>
               <span className="rd-workflow-chain">
-                {(WORKFLOW_MAP[request.type] || []).map((role, i) => (
+                {getChain(request).map((role, i) => (
                   <span
                     key={role}
                     className={`rd-chain-step ${role === request.current_role && request.status !== 'APPROVED' && request.status !== 'REJECTED' ? 'rd-chain-active' : ''}`}

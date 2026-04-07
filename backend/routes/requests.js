@@ -3,9 +3,14 @@ const auth = require('../middleware/auth')
 const requireRole = require('../middleware/role')
 const upload = require('../middleware/upload')
 const { query } = require('../db')
-const { WORKFLOW_MAP } = require('../config/workflow')
+const { WORKFLOW_MAP, COORDINATOR_WORKFLOW_MAP, HOD_WORKFLOW_MAP, getWorkflowMap } = require('../config/workflow')
 
-const VALID_TYPES = Object.keys(WORKFLOW_MAP)
+// All valid types = union of all maps
+const VALID_TYPES = [...new Set([
+  ...Object.keys(WORKFLOW_MAP),
+  ...Object.keys(COORDINATOR_WORKFLOW_MAP),
+  ...Object.keys(HOD_WORKFLOW_MAP),
+])]
 
 // ─── Task 4.1: POST /api/requests (STUDENT only) ────────────────────────────
 
@@ -31,12 +36,20 @@ router.post(
 
     try {
       const document = req.file ? req.file.filename : null
-      const { department, id: created_by } = req.user
+      const { role, department, id: created_by } = req.user
+
+      const map = getWorkflowMap(role)
+
+      if (!map[type]) {
+        return res.status(400).json({ error: `Request type '${type}' is not available for your role` })
+      }
+
+      const startingRole = map[type][0]
 
       const result = await query(
         `INSERT INTO requests (title, description, type, priority, status, current_role, department, document, created_by)
-         VALUES (?, ?, ?, ?, 'PENDING', 'COORDINATOR', ?, ?, ?)`,
-        [title, description, type, priority || 'MEDIUM', department, document, created_by]
+         VALUES (?, ?, ?, ?, 'PENDING', ?, ?, ?, ?)`,
+        [title, description, type, priority || 'MEDIUM', startingRole, department, document, created_by]
       )
 
       const [created] = await query(
@@ -108,24 +121,30 @@ router.get('/', auth, async (req, res) => {
         [userId]
       )
     } else if (role === 'COORDINATOR') {
+      // Pending approvals waiting for coordinator + their own submitted requests
       rows = await query(
         `SELECT r.*, u.username AS created_by_username, COALESCE(u.name, u.username) AS created_by_name
          FROM requests r
          JOIN users u ON u.id = r.created_by
          WHERE r.department = ?
-           AND r.current_role = 'COORDINATOR'
-           AND r.status IN ('PENDING', 'ESCALATED')`,
-        [department]
+           AND (
+             (r.current_role = 'COORDINATOR' AND r.status IN ('PENDING', 'ESCALATED'))
+             OR r.created_by = ?
+           )`,
+        [department, userId]
       )
     } else if (role === 'HOD') {
+      // Pending approvals waiting for HOD + their own submitted requests
       rows = await query(
         `SELECT r.*, u.username AS created_by_username, COALESCE(u.name, u.username) AS created_by_name
          FROM requests r
          JOIN users u ON u.id = r.created_by
          WHERE r.department = ?
-           AND r.current_role = 'HOD'
-           AND r.status IN ('PENDING', 'ESCALATED')`,
-        [department]
+           AND (
+             (r.current_role = 'HOD' AND r.status IN ('PENDING', 'ESCALATED'))
+             OR r.created_by = ?
+           )`,
+        [department, userId]
       )
     } else if (role === 'DIRECTOR') {
       rows = await query(
@@ -151,7 +170,7 @@ router.get('/', auth, async (req, res) => {
 router.get('/:id', auth, async (req, res) => {
   try {
     const [request] = await query(
-      `SELECT r.*, u.username AS created_by_username
+      `SELECT r.*, u.username AS created_by_username, u.role AS created_by_role
        FROM requests r
        JOIN users u ON u.id = r.created_by
        WHERE r.id = ?`,
@@ -196,7 +215,13 @@ router.post(
   requireRole('COORDINATOR', 'HOD', 'DIRECTOR'),
   async (req, res) => {
     try {
-      const [request] = await query('SELECT * FROM requests WHERE id = ?', [req.params.id])
+      const [request] = await query(
+        `SELECT r.*, u.role AS created_by_role
+         FROM requests r
+         JOIN users u ON u.id = r.created_by
+         WHERE r.id = ?`,
+        [req.params.id]
+      )
 
       if (!request) {
         return res.status(404).json({ error: 'Not found' })
@@ -213,11 +238,17 @@ router.post(
         return res.status(400).json({ error: 'Request is already finalised' })
       }
 
+      // Cannot approve your own request
+      if (request.created_by === req.user.id) {
+        return res.status(403).json({ error: 'You cannot approve your own request' })
+      }
+
       if (req.user.role !== request.current_role) {
         return res.status(403).json({ error: 'Forbidden' })
       }
 
-      const chain = WORKFLOW_MAP[request.type]
+      // Pick the correct workflow map based on who submitted the request
+      const chain = getWorkflowMap(request.created_by_role)[request.type]
       const currentIndex = chain.indexOf(request.current_role)
       const nextRole = chain[currentIndex + 1] || null
       const { comment } = req.body

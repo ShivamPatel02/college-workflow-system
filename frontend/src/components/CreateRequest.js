@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react"
+
+ import React, { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import api from "../services/api"
 
@@ -61,11 +62,29 @@ const TEACHER_REQUEST_TYPES = [
       { value: "RESEARCH",           label: "🔭 Research Proposal" },
       { value: "INDUSTRIAL_VISIT",   label: "🏭 Industrial Visit Approval" },
       { value: "PROJECT",            label: "🚀 Major Project / Lab Setup" },
+      { value: "OTHER",              label: "📌 Other Request" },
+    ]
+  },
+]
+
+// HOD submits — all go directly to Director
+const HOD_REQUEST_TYPES = [
+  {
+    group: "📋 Simple Requests (Director Only)",
+    options: [
+      { value: "LEAVE",              label: "🏖️ Leave Request" },
+      { value: "LAB_ACCESS",         label: "🔬 Lab Access Request" },
     ]
   },
   {
-    group: "📌 Other",
+    group: "📝 Requests (Director Only)",
     options: [
+      { value: "EQUIPMENT",          label: "🔧 Equipment Purchase Request" },
+      { value: "COURSE_CHANGE",      label: "🔄 Course / Syllabus Change" },
+      { value: "CERTIFICATE",        label: "📜 Experience Certificate" },
+      { value: "RESEARCH",           label: "🔭 Research Proposal" },
+      { value: "INDUSTRIAL_VISIT",   label: "🏭 Industrial Visit Approval" },
+      { value: "PROJECT",            label: "🚀 Major Project / Lab Setup" },
       { value: "OTHER",              label: "📌 Other Request" },
     ]
   },
@@ -149,7 +168,12 @@ export default function CreateRequest() {
           <label>📋 Request Type <span className="cr-required">*</span></label>
           <select value={requestType} onChange={e => setRequestType(e.target.value)} className="cr-select">
             <option value="">Select request type...</option>
-            {(user && ["COORDINATOR","HOD"].includes(user.role) ? TEACHER_REQUEST_TYPES : STUDENT_REQUEST_TYPES).map(group => (
+            {(user && user.role === 'HOD'
+              ? HOD_REQUEST_TYPES
+              : user && user.role === 'COORDINATOR'
+              ? TEACHER_REQUEST_TYPES
+              : STUDENT_REQUEST_TYPES
+            ).map(group => (
               <optgroup key={group.group} label={group.group}>
                 {group.options.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>

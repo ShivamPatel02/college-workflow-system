@@ -30,27 +30,44 @@ function formatDate(d) {
 }
 
 export default function Requests() {
-  const [user, setUser]         = useState(null)
-  const [requests, setRequests] = useState([])
-  const [loading, setLoading]   = useState(true)
+  const [user, setUser]               = useState(null)
+  const [requests, setRequests]       = useState([])
+  const [myRequests, setMyRequests]   = useState([])
+  const [loading, setLoading]         = useState(true)
   const nav = useNavigate()
 
-  const load = () => {
+  const load = (currentUser) => {
     api.get("/requests")
-      .then(res => { setRequests(res.data); setLoading(false) })
+      .then(res => {
+        const all = res.data
+        // For approvers: split into pending-for-them vs their own submitted
+        if (currentUser && ["COORDINATOR","HOD","DIRECTOR"].includes(currentUser.role)) {
+          const pendingForMe = all.filter(r =>
+            r.current_role === currentUser.role &&
+            (r.status === "PENDING" || r.status === "ESCALATED") &&
+            r.created_by !== currentUser.id
+          )
+          const mine = all.filter(r => r.created_by === currentUser.id)
+          setRequests(pendingForMe)
+          setMyRequests(mine)
+        } else {
+          setRequests(all)
+        }
+        setLoading(false)
+      })
       .catch(() => setLoading(false))
   }
 
   useEffect(() => {
     api.get("/auth/me")
-      .then(res => { setUser(res.data); load() })
+      .then(res => { setUser(res.data); load(res.data) })
       .catch(() => nav("/"))
   }, [])
 
   const quickApprove = async (id) => {
     try {
       await api.post(`/requests/${id}/approve`, { comment: "Quick approved" })
-      load()
+      load(user)
     } catch (err) {
       alert(err.response?.data?.error || "Error")
     }
@@ -60,7 +77,7 @@ export default function Requests() {
     const comment = window.prompt("Reason for rejection (optional):") ?? ""
     try {
       await api.post(`/requests/${id}/reject`, { comment })
-      load()
+      load(user)
     } catch (err) {
       alert(err.response?.data?.error || "Error")
     }
@@ -132,6 +149,38 @@ export default function Requests() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* My submitted requests section */}
+          {myRequests.length > 0 && (
+            <div style={{ marginTop: "32px" }}>
+              <div className="rh-section-title">📁 My Submitted Requests</div>
+              {myRequests.map(r => (
+                <div key={r.id} className="rh-card">
+                  <div className="rh-card-top">
+                    <div>
+                      <div className="rh-card-title">{r.title || TYPE_LABELS[r.type] || r.type}</div>
+                      <div className="rh-card-id">ID: #{r.id}</div>
+                    </div>
+                    <span className={`rh-status rh-status-${displayStatusClass(r.status)}`}>{displayStatus(r.status)}</span>
+                  </div>
+                  <div className="rh-meta-row">
+                    <div className="rh-meta-item">🏢 Department: {r.department}</div>
+                    <div className="rh-meta-item">{PRIORITY_ICON[r.priority] || "🟡"} Priority: {r.priority || "MEDIUM"}</div>
+                    <div className="rh-meta-item">📅 Submitted: {formatDate(r.created_at)}</div>
+                    <div className="rh-meta-item">👤 Current Approver: {r.current_role || "—"}</div>
+                  </div>
+                  <div className="rh-card-footer">
+                    <Link to={`/requests/${r.id}`} className="rh-view-btn">👁 View Details</Link>
+                    <span className="rh-awaiting">
+                      {r.status === "APPROVED" ? "✅ Approved" :
+                       r.status === "REJECTED" ? "❌ Rejected" :
+                       `⏳ Awaiting ${r.current_role || "approval"}...`}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

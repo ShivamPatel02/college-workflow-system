@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom"
 import api from "../services/api"
 
 const WORKFLOW_INFO = [
-  { type: "Simple",  chain: "Student → Coordinator",            types: "Leave, Lab Access",           color: "#28a745" },
-  { type: "Medium",  chain: "Student → Coordinator → HOD",      types: "Fee Concession, Certificates", color: "#fd7e14" },
-  { type: "Complex", chain: "Student → Coordinator → HOD → Director", types: "Projects, Equipment",   color: "#dc3545" },
+  { type: "Student Simple",   chain: "Student → Coordinator",                  types: "Leave, Lab Access",           color: "#28a745" },
+  { type: "Student Medium",   chain: "Student → Coordinator → HOD",            types: "Fee Concession, Certificate",  color: "#fd7e14" },
+  { type: "Student Complex",  chain: "Student → Coordinator → HOD → Director", types: "Projects, Equipment",          color: "#dc3545" },
+  { type: "Teacher (Coord)",  chain: "Coordinator → HOD → Director",           types: "Projects, Research",           color: "#6f42c1" },
+  { type: "Teacher (HOD)",    chain: "HOD → Director",                         types: "All HOD requests",             color: "#0dcaf0" },
 ]
 
 export default function Dashboard() {
@@ -15,15 +17,19 @@ export default function Dashboard() {
   const nav = useNavigate()
 
   useEffect(() => {
+    let currentUser = null
     api.get("/auth/me")
       .then(res => {
+        currentUser = res.data
         setUser(res.data)
         return api.get("/requests")
       })
       .then(res => {
         const reqs = res.data
+        // Only count requests pending FOR this user, not their own submitted ones
         const pending = reqs.filter(r =>
-          r.status === "PENDING" || r.status === "ESCALATED"
+          (r.status === "PENDING" || r.status === "ESCALATED") &&
+          r.created_by !== currentUser?.id
         ).length
         setStats({ total: reqs.length, pending })
       })
