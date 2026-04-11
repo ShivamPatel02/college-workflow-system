@@ -223,7 +223,12 @@ export default function RequestDetail() {
             </div>
             <div className="rd-info-row">
               <span>Current Approver</span>
-              <span>{request.current_role?.toLowerCase().replace("_"," ") || "—"}</span>
+              <span>
+                {request.substitute_name && request.current_role === 'COORDINATOR'
+                  ? `${request.substitute_name} (Substitute)`
+                  : request.current_role?.toLowerCase().replace("_"," ") || "—"
+                }
+              </span>
             </div>
             <div className="rd-info-row">
               <span>Final Approver</span>

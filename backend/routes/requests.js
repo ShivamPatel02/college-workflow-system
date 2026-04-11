@@ -121,7 +121,11 @@ router.get('/', auth, async (req, res) => {
         [userId]
       )
     } else if (role === 'COORDINATOR') {
-      // Pending approvals waiting for coordinator + their own submitted requests
+      // Pending approvals waiting for coordinator + their own submitted + substitute coverage
+      const [subRow] = await query(
+        `SELECT absent_coordinator_id FROM substitutes WHERE substitute_id = ? AND department = ?`,
+        [userId, department]
+      )
       rows = await query(
         `SELECT r.*, u.username AS created_by_username, COALESCE(u.name, u.username) AS created_by_name
          FROM requests r
@@ -170,9 +174,14 @@ router.get('/', auth, async (req, res) => {
 router.get('/:id', auth, async (req, res) => {
   try {
     const [request] = await query(
-      `SELECT r.*, u.username AS created_by_username, u.role AS created_by_role
+      `SELECT r.*,
+        u.username AS created_by_username,
+        u.role AS created_by_role,
+        COALESCE(s_user.name, s_user.username) AS substitute_name
        FROM requests r
        JOIN users u ON u.id = r.created_by
+       LEFT JOIN substitutes s ON s.department = r.department AND r.current_role = 'COORDINATOR'
+       LEFT JOIN users s_user ON s_user.id = s.substitute_id
        WHERE r.id = ?`,
       [req.params.id]
     )
@@ -243,7 +252,21 @@ router.post(
         return res.status(403).json({ error: 'You cannot approve your own request' })
       }
 
-      if (req.user.role !== request.current_role) {
+      // Turn check — must be current_role OR a registered substitute for this dept
+      const isMyTurn = req.user.role === request.current_role
+      let actingAsSubstitute = false
+
+      if (!isMyTurn && req.user.role === 'COORDINATOR' && request.current_role === 'COORDINATOR') {
+        // Check if this coordinator is a substitute for the absent coordinator in this dept
+        const [sub] = await query(
+          `SELECT id FROM substitutes
+           WHERE substitute_id = ? AND department = ?`,
+          [req.user.id, request.department]
+        )
+        if (sub) actingAsSubstitute = true
+      }
+
+      if (!isMyTurn && !actingAsSubstitute) {
         return res.status(403).json({ error: 'Forbidden' })
       }
 
@@ -315,7 +338,19 @@ router.post(
         return res.status(400).json({ error: 'Request is already finalised' })
       }
 
-      if (req.user.role !== request.current_role) {
+      // Turn check — must be current_role OR a registered substitute
+      const isMyTurn = req.user.role === request.current_role
+      let actingAsSubstitute = false
+
+      if (!isMyTurn && req.user.role === 'COORDINATOR' && request.current_role === 'COORDINATOR') {
+        const [sub] = await query(
+          `SELECT id FROM substitutes WHERE substitute_id = ? AND department = ?`,
+          [req.user.id, request.department]
+        )
+        if (sub) actingAsSubstitute = true
+      }
+
+      if (!isMyTurn && !actingAsSubstitute) {
         return res.status(403).json({ error: 'Forbidden' })
       }
 

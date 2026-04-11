@@ -53,6 +53,22 @@ CREATE TABLE IF NOT EXISTS approval_history (
 );
 
 -- ─────────────────────────────────────────────
+-- Substitutes — HOD assigns a substitute for an absent coordinator
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS substitutes (
+  id                    INT AUTO_INCREMENT PRIMARY KEY,
+  absent_coordinator_id INT NOT NULL,           -- who is absent
+  substitute_id         INT NOT NULL,           -- who covers for them
+  assigned_by           INT NOT NULL,           -- HOD who assigned
+  department            ENUM('CSE','ECE','MECH','CIVIL','EEE','IT') NOT NULL,
+  created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_sub_absent  FOREIGN KEY (absent_coordinator_id) REFERENCES users(id),
+  CONSTRAINT fk_sub_sub     FOREIGN KEY (substitute_id)         REFERENCES users(id),
+  CONSTRAINT fk_sub_hod     FOREIGN KEY (assigned_by)           REFERENCES users(id),
+  UNIQUE KEY unique_absent (absent_coordinator_id)  -- one substitute per coordinator
+);
+
+-- ─────────────────────────────────────────────
 -- All passwords are bcrypt hash of "123"
 -- ─────────────────────────────────────────────
 
