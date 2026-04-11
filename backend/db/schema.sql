@@ -90,6 +90,15 @@ INSERT INTO users (username, name, password, role, department) VALUES
   ('coordinator_eee',   'Asst. Prof. Nupur Modh',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'EEE'),
   ('coordinator_it',    'Asst. Prof. Mukesh Azad',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'IT');
 
+-- Substitute Coordinators — one per department (password: 123)
+INSERT INTO users (username, name, password, role, department) VALUES
+  ('sub_coordinator_cse',   'Asst. Prof. Rahul Sharma',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'CSE'),
+  ('sub_coordinator_ece',   'Asst. Prof. Priya Verma',    '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'ECE'),
+  ('sub_coordinator_mech',  'Asst. Prof. Amit Tiwari',    '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'MECH'),
+  ('sub_coordinator_civil', 'Asst. Prof. Neha Gupta',     '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'CIVIL'),
+  ('sub_coordinator_eee',   'Asst. Prof. Vikram Singh',   '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'EEE'),
+  ('sub_coordinator_it',    'Asst. Prof. Anjali Mishra',  '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'COORDINATOR', 'IT');
+
 -- HODs 
 INSERT INTO users (username, name, password, role, department) VALUES
   ('hod_cse',   'Dr. Kanak Saxena',                 '$2b$10$BwR6NDiR3pmQ5sFkBdqaQ.1Z/q7QSRz..ab8OVvvIa.nseosArUsm', 'HOD', 'CSE'),
